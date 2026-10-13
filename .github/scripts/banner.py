@@ -1,21 +1,35 @@
-"""Animated hero banner: a fireball charges, flies across, and bursts into a name."""
+"""Animated hero banner.
+
+An original hooded fighter charges a fireball in his palm and launches it
+across a perspective floor. It explodes and the name slams in as 3D extruded
+lettering. Pure SVG + SMIL, so it animates inside a GitHub README.
+
+Usage: python banner.py <out.svg>
+"""
 import math
 import random
 import sys
 
 OUT = sys.argv[1]
 NAME = "DILPREET SINGH DUA"
-SUB = "Solutions Engineer"
+SUB = "SOLUTIONS ENGINEER"
 
-W, H = 860, 230
-CX, CY = W / 2, 112
-DUR = 7.0                    # loop length (s)
-T_CHARGE, T_FIRE, T_HIT = 0.0, 1.3, 1.85
-T_FADE = 6.4
+W, H = 900, 280
+HORIZON = 168
+VP = (W / 2, HORIZON)
+FLOOR_Y = 252                       # where the fighter stands
+DUR = 8.0
+T_FIRE, T_HIT = 1.7, 2.35
+T_FADE = 7.3
+PALM = (182, 138)
+HIT = (530, 132)
+FONT = "'Segoe UI Black','Arial Black','Segoe UI',Helvetica,Arial,sans-serif"
+
+rng = random.Random(11)
 
 
 def k(t):
-    return f"{max(0, min(1, t / DUR)):.4f}"
+    return f"{max(0.0, min(1.0, t / DUR)):.4f}"
 
 
 def anim(attr, times, values, extra=""):
@@ -23,166 +37,318 @@ def anim(attr, times, values, extra=""):
             f'keyTimes="{";".join(k(t) for t in times)}" values="{";".join(map(str, values))}" {extra}/>')
 
 
-rng = random.Random(7)
-p = [
-    f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
-    "<defs>",
-    '<radialGradient id="orb"><stop offset="0" stop-color="#ffffff"/>'
-    '<stop offset="0.25" stop-color="#fff3b0"/><stop offset="0.5" stop-color="#ffb020"/>'
-    '<stop offset="0.75" stop-color="#ff5a1f" stop-opacity="0.85"/><stop offset="1" stop-color="#c81e1e" stop-opacity="0"/></radialGradient>',
-    '<radialGradient id="flash"><stop offset="0" stop-color="#ffffff"/>'
-    '<stop offset="0.35" stop-color="#ffd166" stop-opacity="0.8"/><stop offset="0.7" stop-color="#ff5a1f" stop-opacity="0.4"/><stop offset="1" stop-color="#c81e1e" stop-opacity="0"/></radialGradient>',
-    '<linearGradient id="trail" x1="0" x2="1"><stop offset="0" stop-color="#c81e1e" stop-opacity="0"/>'
-    '<stop offset="0.6" stop-color="#ff5a1f" stop-opacity="0.7"/><stop offset="1" stop-color="#ffd166" stop-opacity="0.95"/></linearGradient>',
-    '<linearGradient id="name" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff"/>'
-    '<stop offset="1" stop-color="#ffb347"/></linearGradient>',
-    '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/>'
-    '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
-    "</defs>",
-    f'<rect width="{W}" height="{H}" rx="12" fill="#0d1117"/>',
-]
+def anim_tf(kind, times, values, extra=""):
+    return (f'<animateTransform attributeName="transform" type="{kind}" dur="{DUR}s" '
+            f'repeatCount="indefinite" keyTimes="{";".join(k(t) for t in times)}" '
+            f'values="{";".join(values)}" {extra}/>')
 
-# faint background stars
-for _ in range(45):
-    x, y, r = rng.uniform(10, W - 10), rng.uniform(10, H - 10), rng.uniform(0.5, 1.4)
-    p.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r:.1f}" fill="#8b949e" opacity="{rng.uniform(.15,.5):.2f}"/>')
 
-START_X = 100
-# charging particles converging on the orb
-for i in range(14):
-    a = rng.uniform(0, 2 * math.pi)
-    d = rng.uniform(40, 70)
-    sx, sy = START_X + math.cos(a) * d, CY + math.sin(a) * d
-    t0 = rng.uniform(0.05, 0.6)
-    p.append(
-        f'<circle r="2" fill="#ffb020" opacity="0">'
-        + anim("cx", [0, t0, T_FIRE, DUR], [sx, sx, START_X, START_X])
-        + anim("cy", [0, t0, T_FIRE, DUR], [sy, sy, CY, CY])
-        + anim("opacity", [0, t0, T_FIRE - 0.05, T_FIRE, DUR], [0, 1, 1, 0, 0])
-        + "</circle>"
-    )
+def limb(a, b, wa, wb, fill="url(#skinLit)"):
+    """Tapered capsule from point a to b."""
+    (x1, y1), (x2, y2) = a, b
+    ang = math.atan2(y2 - y1, x2 - x1) + math.pi / 2
+    dx, dy = math.cos(ang), math.sin(ang)
+    pts = [(x1 + dx * wa / 2, y1 + dy * wa / 2), (x2 + dx * wb / 2, y2 + dy * wb / 2),
+           (x2 - dx * wb / 2, y2 - dy * wb / 2), (x1 - dx * wa / 2, y1 - dy * wa / 2)]
+    d = "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in pts) + " Z"
+    return (f'<path d="{d}" fill="{fill}"/>'
+            f'<circle cx="{x1}" cy="{y1}" r="{wa/2:.1f}" fill="{fill}"/>'
+            f'<circle cx="{x2}" cy="{y2}" r="{wb/2:.1f}" fill="{fill}"/>')
 
-# original hooded fighter (faces right) who charges and launches the fireball
-GROUND = 206
-RIM = "#ff8a3d"
-CLOAK = "#262c36"
+
+def rim(a, b, off=2.2):
+    """Warm rim light along the side of a limb facing the fireball."""
+    (x1, y1), (x2, y2) = a, b
+    return (f'<line x1="{x1+off:.1f}" y1="{y1-off*0.4:.1f}" x2="{x2+off:.1f}" y2="{y2-off*0.4:.1f}" '
+            f'stroke="url(#rimGrad)" stroke-width="1.6" stroke-linecap="round" class="rim"/>')
+
+
+p = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">']
+
+# ---------------------------------------------------------------- defs
+p.append(f"""<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#04060b"/><stop offset="1" stop-color="#101826"/></linearGradient>
+<linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#0a0f18"/><stop offset="1" stop-color="#151d2b"/></linearGradient>
+<linearGradient id="gridFade" x1="0" y1="{HORIZON}" x2="0" y2="{H}" gradientUnits="userSpaceOnUse">
+  <stop offset="0" stop-color="#2b3a52" stop-opacity="0"/><stop offset="1" stop-color="#34507a" stop-opacity="0.9"/></linearGradient>
+<radialGradient id="vignette" cx="0.5" cy="0.5" r="0.75">
+  <stop offset="0.6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.65"/></radialGradient>
+
+<linearGradient id="skinLit" x1="30" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+  <stop offset="0" stop-color="#0d1118"/><stop offset="0.55" stop-color="#232a36"/>
+  <stop offset="1" stop-color="#6a4a36"/></linearGradient>
+<linearGradient id="clothLit" x1="20" y1="0" x2="190" y2="0" gradientUnits="userSpaceOnUse">
+  <stop offset="0" stop-color="#090c12"/><stop offset="0.6" stop-color="#1c2230"/>
+  <stop offset="1" stop-color="#4e3a33"/></linearGradient>
+<linearGradient id="cloak" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#05070b"/><stop offset="1" stop-color="#1a1f2b"/></linearGradient>
+<linearGradient id="sash" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#7a2a0c"/><stop offset="1" stop-color="#ff8a3d"/></linearGradient>
+<linearGradient id="rimGrad" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#ffd38a"/><stop offset="1" stop-color="#ff7a2e"/></linearGradient>
+
+<radialGradient id="core"><stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#fff6c2"/>
+  <stop offset="0.7" stop-color="#ffc23d"/><stop offset="1" stop-color="#ff8a1f" stop-opacity="0"/></radialGradient>
+<radialGradient id="flame"><stop offset="0" stop-color="#ffb020"/><stop offset="0.55" stop-color="#ff5a1f"/>
+  <stop offset="0.85" stop-color="#c81e1e" stop-opacity="0.6"/><stop offset="1" stop-color="#7a0f0f" stop-opacity="0"/></radialGradient>
+<radialGradient id="halo"><stop offset="0" stop-color="#ff9a3d" stop-opacity="0.55"/>
+  <stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
+<radialGradient id="floorLight"><stop offset="0" stop-color="#ff8a3d" stop-opacity="0.55"/>
+  <stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
+<radialGradient id="flash"><stop offset="0" stop-color="#ffffff"/><stop offset="0.3" stop-color="#ffe08a" stop-opacity="0.9"/>
+  <stop offset="0.65" stop-color="#ff6a1f" stop-opacity="0.45"/><stop offset="1" stop-color="#c81e1e" stop-opacity="0"/></radialGradient>
+<linearGradient id="tail" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#c81e1e" stop-opacity="0"/><stop offset="0.6" stop-color="#ff5a1f" stop-opacity="0.75"/>
+  <stop offset="1" stop-color="#ffd166"/></linearGradient>
+
+<linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#ffe7b0"/><stop offset="1" stop-color="#ffb347"/></linearGradient>
+
+<filter id="fire" x="-60%" y="-60%" width="220%" height="220%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="3" result="n">
+    <animate attributeName="baseFrequency" dur="0.9s" values="0.06;0.085;0.06" repeatCount="indefinite"/>
+  </feTurbulence>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+  <feGaussianBlur stdDeviation="0.6"/>
+</filter>
+<filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+  <feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="softGlow" x="-30%" y="-80%" width="160%" height="260%">
+  <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+<filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
+<clipPath id="frame"><rect width="{W}" height="{H}" rx="14"/></clipPath>
+</defs>""")
+
+p.append('<g clip-path="url(#frame)">')
+
+# ---------------------------------------------------------------- scene
+p.append(f'<rect width="{W}" height="{H}" fill="url(#sky)"/>')
+for _ in range(60):
+    x, y = rng.uniform(0, W), rng.uniform(0, HORIZON - 6)
+    p.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{rng.uniform(.4,1.3):.1f}" fill="#c9d1d9" '
+             f'opacity="{rng.uniform(.1,.55):.2f}"/>')
+p.append(f'<rect y="{HORIZON}" width="{W}" height="{H-HORIZON}" fill="url(#floor)"/>')
+
+# perspective grid
+grid = []
+for i in range(-14, 15):
+    xb = VP[0] + i * 95
+    grid.append(f"M{VP[0]} {VP[1]} L{xb} {H}")
+for j in range(1, 9):
+    y = HORIZON + (H - HORIZON) * (j / 8) ** 1.9
+    grid.append(f"M0 {y:.1f} L{W} {y:.1f}")
+p.append(f'<path d="{" ".join(grid)}" stroke="url(#gridFade)" stroke-width="1" fill="none"/>')
+p.append(f'<line x1="0" y1="{HORIZON}" x2="{W}" y2="{HORIZON}" stroke="#ff7a2e" stroke-opacity="0.25"/>')
+
+# fireball light pool travelling across the floor
 p.append(
-    # warm glow on the ground while charging
-    f'<ellipse cx="70" cy="{GROUND}" rx="60" ry="8" fill="#ff8a3d" opacity="0">'
-    + anim("opacity", [0, 0.3, T_FIRE, T_FIRE + 0.4, DUR], [0, 0.35, 0.5, 0, 0])
+    f'<ellipse cy="{FLOOR_Y+6}" rx="120" ry="16" fill="url(#floorLight)" opacity="0">'
+    + anim("cx", [0, T_FIRE, T_HIT, DUR], [PALM[0], PALM[0], HIT[0], HIT[0]])
+    + anim("opacity", [0, 0.4, T_FIRE, T_HIT, T_HIT + 0.6, DUR], [0, 0.7, 1, 1, 0, 0])
     + "</ellipse>"
 )
-fighter = [
-    "<g>",
-    # crouch while charging, recoil back on launch, settle
-    '<animateTransform attributeName="transform" type="translate" '
-    f'dur="{DUR}s" repeatCount="indefinite" '
-    f'keyTimes="{k(0)};{k(0.6)};{k(T_FIRE)};{k(T_FIRE+0.08)};{k(T_FIRE+0.5)};1" '
-    'values="0,0;0,3;0,3;-9,1;0,0;0,0"/>',
-    # scarf tail, fluttering behind
-    f'<path fill="{RIM}" opacity="0.9" d="M44 92 C30 90 20 98 6 94 L10 100 C24 104 34 98 46 99 Z">'
-    '<animate attributeName="d" dur="0.6s" repeatCount="indefinite" values="'
-    "M44 92 C30 90 20 98 6 94 L10 100 C24 104 34 98 46 99 Z;"
-    "M44 92 C30 96 18 88 4 92 L8 99 C22 96 34 102 46 99 Z;"
-    'M44 92 C30 90 20 98 6 94 L10 100 C24 104 34 98 46 99 Z"/></path>',
-    # legs in a wide stance
-    f'<path d="M48 168 L34 {GROUND}" stroke="{CLOAK}" stroke-width="9" stroke-linecap="round"/>',
-    f'<path d="M58 168 L78 {GROUND}" stroke="{CLOAK}" stroke-width="9" stroke-linecap="round"/>',
-    f'<path d="M48 168 L34 {GROUND}" stroke="{RIM}" stroke-width="1.2" stroke-linecap="round" opacity="0.6" transform="translate(3 0)"/>',
-    f'<path d="M58 168 L78 {GROUND}" stroke="{RIM}" stroke-width="1.2" stroke-linecap="round" opacity="0.6" transform="translate(3 0)"/>',
-    # cloak body with a flowing back hem
-    f'<path d="M42 90 L62 90 L70 172 L56 176 L30 178 C34 160 36 120 42 90 Z" fill="{CLOAK}" stroke="{RIM}" stroke-width="1.5" stroke-linejoin="round"/>',
-    # belt sash
-    f'<path d="M37 136 L67 134 L67 140 L37 142 Z" fill="{RIM}" opacity="0.85"/>',
-    # back arm braced
-    f'<path d="M46 100 L40 124 L48 132" fill="none" stroke="{CLOAK}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>',
-    # hood
-    f'<path d="M38 88 C36 70 46 62 56 64 C66 66 70 76 66 88 C60 92 46 93 38 88 Z" fill="{CLOAK}" stroke="{RIM}" stroke-width="1.5"/>',
-    # face shadow and glowing eye
-    '<path d="M54 74 C62 74 65 80 63 86 L52 86 Z" fill="#0b0e13"/>',
-    f'<rect x="56" y="78" width="6" height="2.4" rx="1.2" fill="#ffd166" filter="url(#glow)"/>',
-    # throwing arm extended forward with open palm
-    f'<path d="M58 96 L74 104 L86 110" fill="none" stroke="{CLOAK}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>',
-    f'<path d="M58 96 L74 104 L86 110" fill="none" stroke="{RIM}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" transform="translate(0 -3)"/>',
-    f'<circle cx="88" cy="111" r="5" fill="{CLOAK}" stroke="{RIM}" stroke-width="1.2"/>',
-    "</g>",
-]
-p.append("".join(fighter))
-
-# trail behind the flying orb
+# fireball contact shadow on the floor (grows smaller as it rises away)
 p.append(
-    f'<rect y="{CY-9}" height="18" rx="9" fill="url(#trail)" opacity="0">'
-    + anim("x", [0, T_FIRE, T_HIT, DUR], [START_X, START_X, CX - 260, CX - 260])
-    + anim("width", [0, T_FIRE, T_HIT, T_HIT + 0.15, DUR], [0, 0, 260, 0, 0])
-    + anim("opacity", [0, T_FIRE, T_HIT, T_HIT + 0.15, DUR], [0, 0.9, 0.9, 0, 0])
-    + "</rect>"
+    f'<ellipse cy="{FLOOR_Y+4}" rx="26" ry="5" fill="#000" opacity="0" filter="url(#blur2)">'
+    + anim("cx", [0, T_FIRE, T_HIT, DUR], [PALM[0] + 4, PALM[0] + 4, HIT[0], HIT[0]])
+    + anim("opacity", [0, 0.6, T_FIRE, T_HIT, T_HIT + 0.05, DUR], [0, 0.35, 0.45, 0.35, 0, 0])
+    + "</ellipse>"
 )
 
-# the orb: grows while charging, flies to centre, vanishes on impact
-p.append(
-    f'<circle r="0" fill="url(#orb)" filter="url(#glow)">'
-    + anim("cx", [0, T_FIRE, T_HIT, DUR], [START_X, START_X, CX, CX])
-    + anim("cy", [0, DUR], [CY, CY])
-    + anim("r", [0, 0.9, 1.05, 1.15, T_FIRE, T_HIT, T_HIT + 0.05, DUR],
-           [0, 26, 22, 28, 26, 22, 0, 0])
-    + '<animate attributeName="opacity" values="1;0.85;1;0.9;1" dur="0.3s" repeatCount="indefinite"/>'
-    + "</circle>"
-)
+# ---------------------------------------------------------------- fighter
+FX = []
+# ground shadow
+FX.append(f'<ellipse cx="100" cy="{FLOOR_Y+2}" rx="78" ry="8" fill="#000" opacity="0.6" filter="url(#blur2)"/>')
 
-# impact flash and shockwave rings
-p.append(
-    f'<circle cx="{CX}" cy="{CY}" r="0" fill="url(#flash)">'
-    + anim("r", [0, T_HIT, T_HIT + 0.35, DUR], [0, 0, 260, 260])
-    + anim("opacity", [0, T_HIT, T_HIT + 0.05, T_HIT + 0.45, DUR], [0, 0, 1, 0, 0])
-    + "</circle>"
-)
-for i, (rmax, delay) in enumerate([(300, 0), (220, 0.12)]):
+fighter = []
+# whole-body motion: breathing while charging, recoil on launch
+fighter.append(anim_tf("translate", [0, 0.8, T_FIRE, T_FIRE + 0.08, T_FIRE + 0.6, DUR],
+                       ["0,0", "0,2", "0,2", "-10,1", "0,0", "0,0"]))
+
+# cloak flowing behind (drawn first, furthest back)
+cloak_a = "M100 116 C80 122 62 152 50 190 C44 210 28 226 10 232 C30 216 36 200 42 182 C52 152 70 128 94 116 Z"
+cloak_b = "M100 116 C78 126 58 156 46 192 C38 214 22 222 4 224 C26 212 34 196 40 180 C50 150 70 128 94 116 Z"
+fighter.append(f'<path fill="url(#cloak)" d="{cloak_a}">'
+               f'<animate attributeName="d" dur="0.9s" repeatCount="indefinite" values="{cloak_a};{cloak_b};{cloak_a}"/></path>')
+# scarf tail
+scarf_a = "M106 114 C92 110 76 116 56 108 C66 116 80 122 104 122 Z"
+scarf_b = "M106 114 C90 116 74 106 52 112 C64 120 82 124 104 122 Z"
+fighter.append(f'<path fill="url(#sash)" d="{scarf_a}">'
+               f'<animate attributeName="d" dur="0.55s" repeatCount="indefinite" values="{scarf_a};{scarf_b};{scarf_a}"/></path>')
+
+# back leg (extended behind)
+hip_b, knee_b, ankle_b = (96, 178), (70, 212), (44, 244)
+fighter.append(limb(hip_b, knee_b, 20, 15, "url(#clothLit)"))
+fighter.append(limb(knee_b, ankle_b, 15, 11, "url(#clothLit)"))
+fighter.append('<path d="M34 244 C38 238 50 238 54 244 L54 250 L30 252 Z" fill="#0b0e14"/>')
+
+# back arm, chambered fist at the hip
+sh_b, el_b, fist_b = (100, 124), (84, 150), (100, 166)
+fighter.append(limb(sh_b, el_b, 12, 10))
+fighter.append(limb(el_b, fist_b, 10, 9))
+fighter.append(f'<circle cx="{fist_b[0]}" cy="{fist_b[1]}" r="6.5" fill="url(#skinLit)"/>')
+
+# torso
+fighter.append('<path d="M96 116 C108 110 122 113 126 123 C126 140 120 160 114 178 L90 180 '
+               'C88 160 90 136 96 116 Z" fill="url(#clothLit)"/>')
+fighter.append('<path d="M126 123 C126 140 120 160 114 178" stroke="url(#rimGrad)" stroke-width="1.6" fill="none" class="rim"/>')
+# chest fold
+fighter.append('<path d="M104 128 C110 140 112 152 110 168" stroke="#06080c" stroke-opacity="0.6" stroke-width="2" fill="none"/>')
+# sash belt with knot
+fighter.append('<path d="M89 170 L116 167 L115 177 L89 180 Z" fill="url(#sash)"/>')
+fighter.append('<path d="M92 174 L80 186 L86 188 L96 177 Z" fill="#a8401a"/>')
+
+# front leg (bent, forward)
+hip_f, knee_f, ankle_f = (108, 178), (142, 202), (150, 244)
+fighter.append(limb(hip_f, knee_f, 21, 16, "url(#clothLit)"))
+fighter.append(limb(knee_f, ankle_f, 16, 12, "url(#clothLit)"))
+fighter.append(rim(hip_f, knee_f, 8))
+fighter.append(rim(knee_f, ankle_f, 6))
+fighter.append('<path d="M140 244 C146 236 160 238 170 246 L170 251 L140 252 Z" fill="#0b0e14"/>')
+fighter.append('<path d="M150 239 C158 239 166 242 170 246" stroke="url(#rimGrad)" stroke-width="1.2" fill="none" class="rim"/>')
+
+# hood and head
+fighter.append('<path d="M98 112 C88 100 92 80 108 74 C122 70 134 80 134 94 C134 106 126 114 114 116 '
+               'C108 117 102 116 98 112 Z" fill="url(#clothLit)"/>')
+fighter.append('<path d="M100 92 C90 96 86 106 84 116 L98 112 Z" fill="#090c12"/>')  # hood drape
+fighter.append('<path d="M134 94 C134 106 126 114 114 116" stroke="url(#rimGrad)" stroke-width="1.6" fill="none" class="rim"/>')
+fighter.append('<path d="M120 86 C130 86 134 96 131 106 C127 112 118 110 116 102 Z" fill="#05070a"/>')  # face shadow
+eye = ('<path d="M122 95 L131 93 L131 96 L123 97 Z" fill="#ffd166" filter="url(#softGlow)">'
+       + anim("opacity", [0, 0.5, T_FIRE, T_FIRE + 0.3, DUR], [0.6, 1, 1, 0.7, 0.6]) + "</path>")
+fighter.append(eye)
+
+# front arm extended, palm open toward the fireball (rotates on launch)
+sh_f, el_f, wr_f = (118, 124), (148, 132), (172, 137)
+arm = [anim_tf("rotate", [0, T_FIRE - 0.15, T_FIRE, T_FIRE + 0.6, DUR],
+               [f"6 {sh_f[0]} {sh_f[1]}", f"8 {sh_f[0]} {sh_f[1]}", f"-6 {sh_f[0]} {sh_f[1]}",
+                f"0 {sh_f[0]} {sh_f[1]}", f"0 {sh_f[0]} {sh_f[1]}"])]
+arm.append(limb(sh_f, el_f, 13, 11))
+arm.append(limb(el_f, wr_f, 11, 9))
+arm.append(rim(sh_f, el_f, 0.5))
+arm.append(rim(el_f, wr_f, 0.5))
+# open palm with fingers
+arm.append('<path d="M170 131 C176 128 182 130 183 134 L186 132 L188 135 L184 138 L187 140 L184 143 '
+           'C180 145 172 144 168 140 Z" fill="url(#skinLit)"/>')
+arm.append('<path d="M183 134 L186 132 L188 135 L184 138 L187 140" stroke="url(#rimGrad)" stroke-width="1" fill="none" class="rim"/>')
+fighter.append("<g>" + "".join(arm) + "</g>")
+
+FX.append("<g>" + "".join(fighter) + "</g>")
+p.append("".join(FX))
+
+# rim lights pulse with the fireball's brightness
+p.insert(1, '<style>.rim{opacity:.9}</style>')
+
+# ---------------------------------------------------------------- fireball
+# charging sparks spiralling into the palm
+for i in range(18):
+    a = rng.uniform(0, 2 * math.pi)
+    d = rng.uniform(34, 70)
+    sx, sy = PALM[0] + 12 + math.cos(a) * d, PALM[1] + math.sin(a) * d
+    t0 = rng.uniform(0.05, 1.1)
+    t1 = min(t0 + 0.45, T_FIRE - 0.02)
     p.append(
-        f'<ellipse cx="{CX}" cy="{CY}" rx="0" ry="0" fill="none" stroke="#ff8a3d" stroke-width="{3-i}">'
-        + anim("rx", [0, T_HIT + delay, T_HIT + delay + 0.6, DUR], [0, 0, rmax, rmax])
-        + anim("ry", [0, T_HIT + delay, T_HIT + delay + 0.6, DUR], [0, 0, rmax * 0.35, rmax * 0.35])
-        + anim("opacity", [0, T_HIT + delay, T_HIT + delay + 0.6, DUR], [0, 1, 0, 0])
-        + "</ellipse>"
-    )
-
-# sparks flying outward
-for i in range(22):
-    a = 2 * math.pi * i / 22 + rng.uniform(-0.1, 0.1)
-    d = rng.uniform(120, 260)
-    ex, ey = CX + math.cos(a) * d, CY + math.sin(a) * d * 0.55
-    p.append(
-        f'<circle r="{rng.uniform(1.5,3):.1f}" fill="#ffd166" opacity="0">'
-        + anim("cx", [0, T_HIT, T_HIT + 0.7, DUR], [CX, CX, round(ex), round(ex)])
-        + anim("cy", [0, T_HIT, T_HIT + 0.7, DUR], [CY, CY, round(ey), round(ey)])
-        + anim("opacity", [0, T_HIT, T_HIT + 0.05, T_HIT + 0.7, DUR], [0, 0, 1, 0, 0])
+        f'<circle r="{rng.uniform(1.2,2.4):.1f}" fill="#ffcf6b" opacity="0">'
+        + anim("cx", [0, t0, t1, DUR], [round(sx), round(sx), PALM[0] + 12, PALM[0] + 12])
+        + anim("cy", [0, t0, t1, DUR], [round(sy), round(sy), PALM[1], PALM[1]])
+        + anim("opacity", [0, t0, t1 - 0.02, t1, DUR], [0, 1, 1, 0, 0])
         + "</circle>"
     )
 
-# name slams in with a small shake, then holds and fades for the loop
-shake = [0, T_HIT, T_HIT + 0.05, T_HIT + 0.1, T_HIT + 0.15, T_HIT + 0.2, DUR]
-p.append(
-    '<g><animateTransform attributeName="transform" type="translate" '
-    f'dur="{DUR}s" repeatCount="indefinite" keyTimes="{";".join(k(t) for t in shake)}" '
-    'values="0,0;0,0;-6,3;5,-2;-3,1;0,0;0,0"/>'
-    f'<g transform="translate({CX} {CY + 14})"><g>'
-    '<animateTransform attributeName="transform" type="scale" '
-    f'dur="{DUR}s" repeatCount="indefinite" keyTimes="{k(0)};{k(T_HIT)};{k(T_HIT+0.25)};1" '
-    'values="1.6;1.6;1;1"/>'
-    f'<text x="0" y="0" text-anchor="middle" font-family="\'Segoe UI\',Helvetica,Arial,sans-serif" '
-    f'font-size="46" font-weight="800" letter-spacing="4" fill="url(#name)" filter="url(#glow)" opacity="0">{NAME}'
-    + anim("opacity", [0, T_HIT, T_HIT + 0.15, T_FADE, DUR - 0.1, DUR], [0, 0, 1, 1, 0, 0])
-    + "</text></g></g></g>"
-)
+BX = PALM[0] + 14   # ball sits just in front of the palm
 
-# subtitle
-p.append(
-    f'<text x="{CX}" y="{CY + 56}" text-anchor="middle" font-family="\'Segoe UI\',Helvetica,Arial,sans-serif" '
-    f'font-size="18" letter-spacing="6" fill="#8b949e" opacity="0">{SUB.upper()}'
-    + anim("opacity", [0, T_HIT + 0.5, T_HIT + 0.9, T_FADE, DUR - 0.1, DUR], [0, 0, 1, 1, 0, 0])
-    + "</text>"
-)
 
+def ball_motion():
+    return (anim("cx", [0, T_FIRE, T_HIT, DUR], [BX, BX, HIT[0], HIT[0]])
+            + anim("cy", [0, T_FIRE, (T_FIRE + T_HIT) / 2, T_HIT, DUR],
+                   [PALM[1], PALM[1], PALM[1] - 10, HIT[1], HIT[1]]))
+
+
+def ball_size(scale):
+    rs = [0, 0.9 * scale, 0.75 * scale, 1.0 * scale, 0.9 * scale, 1.15 * scale, 0, 0]
+    return anim("r", [0, 0.7, 0.95, 1.3, T_FIRE, T_HIT - 0.02, T_HIT + 0.02, DUR],
+                [f"{r * 30:.1f}" for r in rs])
+
+
+# flame tail streaming behind while in flight
+p.append(
+    f'<g filter="url(#fire)"><rect height="34" rx="17" fill="url(#tail)" opacity="0">'
+    + anim("y", [0, T_FIRE, (T_FIRE + T_HIT) / 2, T_HIT, DUR],
+           [PALM[1] - 17, PALM[1] - 17, PALM[1] - 27, HIT[1] - 17, HIT[1] - 17])
+    + anim("x", [0, T_FIRE, T_HIT, DUR], [BX, BX, HIT[0] - 230, HIT[0] - 230])
+    + anim("width", [0, T_FIRE, T_HIT, T_HIT + 0.1, DUR], [0, 0, 240, 0, 0])
+    + anim("opacity", [0, T_FIRE, T_HIT, T_HIT + 0.1, DUR], [0, 1, 1, 0, 0])
+    + "</rect></g>"
+)
+# halo, flame shell (turbulent), hot core
+p.append('<circle r="0" fill="url(#halo)">' + ball_motion() + ball_size(2.2) + "</circle>")
+p.append('<g filter="url(#fire)"><circle r="0" fill="url(#flame)">' + ball_motion() + ball_size(1.35)
+         + "</circle></g>")
+p.append('<circle r="0" fill="url(#core)" filter="url(#glow)">' + ball_motion() + ball_size(0.75)
+         + '<animate attributeName="opacity" values="1;0.85;1;0.92;1" dur="0.25s" repeatCount="indefinite"/>'
+         + "</circle>")
+
+# ---------------------------------------------------------------- impact
+p.append(f'<circle cx="{HIT[0]}" cy="{HIT[1]}" r="0" fill="url(#flash)">'
+         + anim("r", [0, T_HIT, T_HIT + 0.4, DUR], [0, 0, 420, 420])
+         + anim("opacity", [0, T_HIT, T_HIT + 0.05, T_HIT + 0.55, DUR], [0, 0, 1, 0, 0])
+         + "</circle>")
+# shockwave rings lying on the floor plane (flattened = perspective)
+for i, (rmax, delay, sw) in enumerate([(380, 0, 3), (260, 0.12, 2), (170, 0.22, 1.5)]):
+    p.append(f'<ellipse cx="{HIT[0]}" cy="{FLOOR_Y-6}" rx="0" ry="0" fill="none" stroke="#ff8a3d" stroke-width="{sw}">'
+             + anim("rx", [0, T_HIT + delay, T_HIT + delay + 0.7, DUR], [0, 0, rmax, rmax])
+             + anim("ry", [0, T_HIT + delay, T_HIT + delay + 0.7, DUR], [0, 0, rmax * 0.12, rmax * 0.12])
+             + anim("opacity", [0, T_HIT + delay, T_HIT + delay + 0.7, DUR], [0, 0.9, 0, 0])
+             + "</ellipse>")
+# embers bursting outward
+for i in range(30):
+    a = rng.uniform(0, 2 * math.pi)
+    d = rng.uniform(140, 330)
+    ex, ey = HIT[0] + math.cos(a) * d, HIT[1] + math.sin(a) * d * 0.5 + 30
+    p.append(f'<circle r="{rng.uniform(1.3,3.2):.1f}" fill="{rng.choice(["#ffd166","#ff9a3d","#fff1c1"])}" opacity="0">'
+             + anim("cx", [0, T_HIT, T_HIT + 0.9, DUR], [HIT[0], HIT[0], round(ex), round(ex)])
+             + anim("cy", [0, T_HIT, T_HIT + 0.9, DUR], [HIT[1], HIT[1], round(ey), round(ey)])
+             + anim("opacity", [0, T_HIT, T_HIT + 0.05, T_HIT + 0.9, DUR], [0, 0, 1, 0, 0])
+             + "</circle>")
+
+# ---------------------------------------------------------------- 3D name
+NX, NY = W / 2 + 80, 126
+DEPTH = 9
+name = []
+name.append(anim_tf("translate", [0, T_HIT, T_HIT + 0.05, T_HIT + 0.1, T_HIT + 0.15, T_HIT + 0.2, DUR],
+                    ["0,0", "0,0", "-7,4", "6,-3", "-3,1", "0,0", "0,0"]))
+inner = [anim_tf("scale", [0, T_HIT, T_HIT + 0.22, T_HIT + 0.32, DUR], ["1.7", "1.7", "0.96", "1", "1"])]
+text_attrs = (f'x="0" y="0" text-anchor="middle" font-family="{FONT}" font-size="48" '
+              f'font-weight="900" letter-spacing="3"')
+# extrusion: stacked copies stepping down-right, darkening with depth
+for d in range(DEPTH, 0, -1):
+    shade = int(40 + (DEPTH - d) * 9)
+    col = f"rgb({min(255, shade + 70)},{shade // 2 + 10},{shade // 4})"
+    inner.append(f'<text {text_attrs} transform="translate({d * 0.9:.1f} {d * 1.1:.1f})" fill="{col}">{NAME}</text>')
+# soft shadow under the letters
+inner.append(f'<text {text_attrs} transform="translate(8 16)" fill="#000" opacity="0.55" filter="url(#blur6)">{NAME}</text>')
+# front face with bevel highlight
+inner.append(f'<text {text_attrs} fill="url(#face)" stroke="#fff6dc" stroke-width="0.8" filter="url(#softGlow)">{NAME}</text>')
+name.append(f'<g transform="translate({NX} {NY})"><g>' + "".join(inner) + "</g></g>")
+p.append('<g opacity="0">'
+         + anim("opacity", [0, T_HIT, T_HIT + 0.12, T_FADE, DUR - 0.15, DUR], [0, 0, 1, 1, 0, 0])
+         + "<g>" + "".join(name) + "</g></g>")
+
+# subtitle on a glowing underline
+p.append(f'<g opacity="0">'
+         + anim("opacity", [0, T_HIT + 0.55, T_HIT + 0.95, T_FADE, DUR - 0.15, DUR], [0, 0, 1, 1, 0, 0])
+         + f'<line x1="{NX-150}" y1="{NY+34}" x2="{NX+150}" y2="{NY+34}" stroke="#ff8a3d" stroke-width="1.5" '
+           f'opacity="0.7" filter="url(#softGlow)"/>'
+         + f'<text x="{NX}" y="{NY+60}" text-anchor="middle" font-family="\'Segoe UI\',Helvetica,Arial,sans-serif" '
+           f'font-size="16" font-weight="600" letter-spacing="9" fill="#c9d1d9">{SUB}</text></g>')
+
+p.append(f'<rect width="{W}" height="{H}" fill="url(#vignette)"/>')
+p.append("</g>")
+p.append(f'<rect x="0.5" y="0.5" width="{W-1}" height="{H-1}" rx="14" fill="none" stroke="#30363d"/>')
 p.append("</svg>")
+
 with open(OUT, "w") as f:
     f.write("\n".join(p))
 print("ok")
