@@ -42,21 +42,9 @@ I'm a **Solutions Engineer** based in Indore, India 🇮🇳. I work where tech 
 
 ### 💻 Terminal Mode
 
-```bash
-$ whoami
-Dilpreet Singh Dua
-
-$ cat current_focus.txt
-Designing solutions that connect people, products and APIs
-
-$ git log --oneline mindset
-a1b2c3d ship > perfect
-e4f5g6h read the docs first (sometimes)
-i7j8k9l if it works, write a test before touching it
-
-$ echo $FUN_FACT
-Debugging at 2 AM hits different
-```
+<p align="center">
+  <img src="./assets/terminal.svg" alt="Animated terminal typing out commands about Dilpreet" width="760" />
+</p>
 
 ---
 

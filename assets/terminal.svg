@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="342" viewBox="0 0 760 342" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="14">
+<rect x="0.5" y="0.5" width="759" height="341" rx="10" fill="#0d1117" stroke="#30363d"/>
+<path d="M0.5 36 V10.5 a10 10 0 0 1 10 -10 H749.5 a10 10 0 0 1 10 10 V36 Z" fill="#161b22"/>
+<line x1="0.5" y1="36" x2="759.5" y2="36" stroke="#30363d"/>
+<circle cx="22" cy="18" r="6" fill="#ff5f56"/><circle cx="42" cy="18" r="6" fill="#ffbd2e"/><circle cx="62" cy="18" r="6" fill="#27c93f"/>
+<text x="380.0" y="23" text-anchor="middle" fill="#8b949e" font-size="12">dilpreet@github: ~</text>
+<defs>
+<clipPath id="c0"><rect x="186.92" y="46" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.07119;0.07492;0.07864;0.08237;0.08610;0.08983;0.09356;1" values="0;0;8.7;17.4;26.0;34.7;43.4;64.1;64.1"/></rect></clipPath>
+<clipPath id="c1"><rect x="22" y="70" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.11729;1" values="0;463.4;463.4"/></rect></clipPath>
+<clipPath id="c2"><rect x="186.92" y="94" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.15797;0.16169;0.16542;0.16915;0.17288;0.17661;0.18034;0.18407;0.18780;0.19153;0.19525;0.19898;0.20271;0.20644;1" values="0;0;8.7;17.4;26.0;34.7;43.4;52.1;60.8;69.4;78.1;86.8;95.5;104.2;124.8;124.8"/></rect></clipPath>
+<clipPath id="c3"><rect x="22" y="118" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.23017;1" values="0;498.1;498.1"/></rect></clipPath>
+<clipPath id="c4"><rect x="186.92" y="142" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.27085;0.27458;0.27831;0.28203;0.28576;0.28949;0.29322;0.29695;0.30068;0.30441;0.30814;0.31186;1" values="0;0;8.7;17.4;26.0;34.7;43.4;52.1;60.8;69.4;78.1;86.8;107.5;107.5"/></rect></clipPath>
+<clipPath id="c5"><rect x="22" y="166" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.33559;1" values="0;454.7;454.7"/></rect></clipPath>
+<clipPath id="c6"><rect x="186.92" y="190" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.37627;0.38000;0.38373;0.38746;0.39119;0.39492;0.39864;0.40237;0.40610;0.40983;0.41356;0.41729;0.42102;0.42475;0.42847;0.43220;0.43593;0.43966;0.44339;0.44712;0.45085;0.45458;0.45831;0.46203;0.46576;0.46949;0.47322;0.47695;0.48068;0.48441;0.48814;0.49186;0.49559;0.49932;0.50305;0.50678;0.51051;1" values="0;0;8.7;17.4;26.0;34.7;43.4;52.1;60.8;69.4;78.1;86.8;95.5;104.2;112.8;121.5;130.2;138.9;147.6;156.2;164.9;173.6;182.3;191.0;199.6;208.3;217.0;225.7;234.4;243.0;251.7;260.4;269.1;277.8;286.4;295.1;303.8;324.5;324.5"/></rect></clipPath>
+<clipPath id="c7"><rect x="22" y="214" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.53424;1" values="0;393.9;393.9"/></rect></clipPath>
+<clipPath id="c8"><rect x="186.92" y="238" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.57492;0.57864;0.58237;0.58610;0.58983;0.59356;0.59729;0.60102;0.60475;0.60847;0.61220;0.61593;0.61966;0.62339;0.62712;1" values="0;0;8.7;17.4;26.0;34.7;43.4;52.1;60.8;69.4;78.1;86.8;95.5;104.2;112.8;133.5;133.5"/></rect></clipPath>
+<clipPath id="c9"><rect x="22" y="262" height="24" width="0"><animate attributeName="width" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.65085;1" values="0;289.8;289.8"/></rect></clipPath>
+</defs>
+<text x="22" y="62" fill="#3fb950" opacity="0">dilpreet@github:~$<animate attributeName="opacity" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.04407;1" values="0;1;1"/></text>
+<text x="186.92" y="62" fill="#e6edf3" clip-path="url(#c0)">whoami</text>
+<text x="22" y="86" fill="#8b949e" clip-path="url(#c1)">Dilpreet Singh Dua · Solutions Engineer · Indore, IN</text>
+<text x="22" y="110" fill="#3fb950" opacity="0">dilpreet@github:~$<animate attributeName="opacity" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.13085;1" values="0;1;1"/></text>
+<text x="186.92" y="110" fill="#e6edf3" clip-path="url(#c2)">cat focus.txt</text>
+<text x="22" y="134" fill="#8b949e" clip-path="url(#c3)">Designing solutions that connect people, products &amp; APIs</text>
+<text x="22" y="158" fill="#3fb950" opacity="0">dilpreet@github:~$<animate attributeName="opacity" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.24373;1" values="0;1;1"/></text>
+<text x="186.92" y="158" fill="#e6edf3" clip-path="url(#c4)">ls toolkit/</text>
+<text x="22" y="182" fill="#58a6ff" clip-path="url(#c5)">apis/  integrations/  cloud/  demos/  ai-workflows/</text>
+<text x="22" y="206" fill="#3fb950" opacity="0">dilpreet@github:~$<animate attributeName="opacity" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.34915;1" values="0;1;1"/></text>
+<text x="186.92" y="206" fill="#e6edf3" clip-path="url(#c6)">./solve --input "messy requirements"</text>
+<text x="22" y="230" fill="#3fb950" clip-path="url(#c7)">✔ requirements → architecture → working demo</text>
+<text x="22" y="254" fill="#3fb950" opacity="0">dilpreet@github:~$<animate attributeName="opacity" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.54780;1" values="0;1;1"/></text>
+<text x="186.92" y="254" fill="#e6edf3" clip-path="url(#c8)">echo $FUN_FACT</text>
+<text x="22" y="278" fill="#8b949e" clip-path="url(#c9)">Debugging at 2 AM hits different</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.75s" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.66102;1" values="0;1;1"/><text x="22" y="302" fill="#3fb950">dilpreet@github:~$</text><rect x="186.92" y="290" width="8.7" height="16" fill="#e6edf3"><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" calcMode="discrete"/></rect></g>
+</svg>
