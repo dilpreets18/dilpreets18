@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Hey+%F0%9F%91%8B%2C+I'm+Dilpreet+Singh+Dua;Solutions+Engineer;I+turn+problems+into+working+solutions;Currently+learning+something+new+%F0%9F%9A%80" alt="Typing intro" />
+<img src="./assets/banner.svg" alt="An energy orb charges up, flies across and bursts into the name Dilpreet Singh Dua" width="100%" />
+
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=I+turn+problems+into+working+solutions;APIs+%C2%B7+Integrations+%C2%B7+Cloud+%C2%B7+AI;Currently+learning+something+new+%F0%9F%9A%80" alt="Typing intro" />
 
 <p>
   <img src="https://komarev.com/ghpvc/?username=dilpreets18&style=for-the-badge&color=58A6FF&label=PROFILE+VIEWS" />
