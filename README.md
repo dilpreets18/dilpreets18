@@ -60,19 +60,10 @@ Debugging at 2 AM hits different
 
 ---
 
-### 📊 GitHub Stats
-
-<p align="center">
-  <img height="165" src="https://github-readme-stats.vercel.app/api?username=dilpreets18&show_icons=true&theme=tokyonight&hide_border=true&include_all_commits=true&count_private=true" />
-  <img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=dilpreets18&layout=compact&theme=tokyonight&hide_border=true&langs_count=6" />
-</p>
+### 🔥 Streak
 
 <p align="center">
   <img src="https://streak-stats.demolab.com?user=dilpreets18&theme=tokyonight&hide_border=true" />
-</p>
-
-<p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=dilpreets18&theme=tokyo-night&hide_border=true&area=true" />
 </p>
 
 ---
