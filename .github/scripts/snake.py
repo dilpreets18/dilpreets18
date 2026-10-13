@@ -7,6 +7,7 @@ always matches the real graph.
 Usage: python snake.py <username> <output_dir>
 """
 import os
+import random
 import re
 import sys
 import urllib.request
@@ -14,9 +15,9 @@ import urllib.request
 USER, OUT = sys.argv[1], sys.argv[2]
 CELL, GAP = 11, 3
 PITCH = CELL + GAP
-STEP = 0.045          # seconds per cell
+STEP = 0.14           # seconds per cell
 SNAKE_LEN = 5
-PAUSE_STEPS = 25      # pause after the snake leaves the grid
+PAUSE_STEPS = 12      # pause after the snake leaves the grid
 
 THEMES = {
     "github-snake.svg": {
@@ -48,13 +49,41 @@ if not cells:
 
 cols = max(c for c, _ in cells) + 1
 
-# Serpentine path: down column 0, up column 1, and so on.
-path = []
-for c in range(cols):
-    rows = range(7) if c % 2 == 0 else range(6, -1, -1)
-    path.extend((c, r) for r in rows)
+# Wandering path: the snake enters from the left, then hunts the active days
+# in random order, taking slightly meandering routes, and leaves on the right.
+rng = random.Random()
+targets = [pos for pos, lvl in cells.items() if lvl > 0]
+rng.shuffle(targets)
 
-eat_step = {pos: i for i, pos in enumerate(path)}
+
+def inside(c, r):
+    return 0 <= c < cols and 0 <= r < 7
+
+
+pos = (-1, rng.randrange(7))
+path = [pos]
+for tgt in targets + [(cols, rng.randrange(7))]:
+    guard = 0
+    while pos != tgt and guard < 500:
+        guard += 1
+        c, r = pos
+        dc = (tgt[0] > c) - (tgt[0] < c)
+        dr = (tgt[1] > r) - (tgt[1] < r)
+        moves = []
+        if dc:
+            moves.append((c + dc, r))
+        if dr:
+            moves.append((c, r + dr))
+        if rng.random() < 0.2:  # occasional detour so it looks alive
+            moves = [(c + 1, r), (c - 1, r), (c, r + 1), (c, r - 1)]
+            moves = [m for m in moves if inside(*m) and m not in path[-3:]]
+        nxt = rng.choice(moves) if moves else (c + dc, r + dr)
+        path.append(nxt)
+        pos = nxt
+
+eat_step = {}
+for i, p in enumerate(path):
+    eat_step.setdefault(p, i)
 total_steps = len(path) + SNAKE_LEN + PAUSE_STEPS
 dur = total_steps * STEP
 W, H = cols * PITCH + 20, 7 * PITCH + 20
@@ -85,17 +114,15 @@ def build(theme):
         out.append(rect)
 
     # Snake segments, each trailing the head by i steps.
-    off = (-PITCH * 2, -PITCH * 2)
     for i in range(SNAKE_LEN):
         values, times = [], []
         for s in range(total_steps):
-            k = s - i
-            if 0 <= k < len(path):
-                x, y = xy(path[k])
-            else:
-                x, y = off
+            k = min(max(s - i, 0), len(path) - 1)
+            x, y = xy(path[k])
             values.append(f"{x},{y}")
             times.append(f"{s / total_steps:.5f}")
+        values.append(values[-1])
+        times.append("1")
         size = CELL - i  # tail tapers
         pad = i / 2
         opacity = 1 - i * 0.12
@@ -103,7 +130,7 @@ def build(theme):
             f'<rect width="{size}" height="{size}" x="{pad}" y="{pad}" rx="3" '
             f'fill="{theme["snake"]}" fill-opacity="{opacity:.2f}">'
             f'<animateTransform attributeName="transform" type="translate" '
-            f'dur="{dur:.2f}s" repeatCount="indefinite" calcMode="discrete" '
+            f'dur="{dur:.2f}s" repeatCount="indefinite" calcMode="linear" '
             f'keyTimes="{";".join(times)}" values="{";".join(values)}"/></rect>'
         )
     out.append("</svg>")
