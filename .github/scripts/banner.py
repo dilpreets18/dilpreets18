@@ -1,4 +1,4 @@
-"""Animated hero banner: an energy orb charges, flies across, and bursts into a name."""
+"""Animated hero banner: a fireball charges, flies across, and bursts into a name."""
 import math
 import random
 import sys
@@ -28,14 +28,14 @@ p = [
     f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
     "<defs>",
     '<radialGradient id="orb"><stop offset="0" stop-color="#ffffff"/>'
-    '<stop offset="0.35" stop-color="#b8f1ff"/><stop offset="0.65" stop-color="#3ab7ff" stop-opacity="0.8"/>'
-    '<stop offset="1" stop-color="#1f6feb" stop-opacity="0"/></radialGradient>',
+    '<stop offset="0.25" stop-color="#fff3b0"/><stop offset="0.5" stop-color="#ffb020"/>'
+    '<stop offset="0.75" stop-color="#ff5a1f" stop-opacity="0.85"/><stop offset="1" stop-color="#c81e1e" stop-opacity="0"/></radialGradient>',
     '<radialGradient id="flash"><stop offset="0" stop-color="#ffffff"/>'
-    '<stop offset="0.4" stop-color="#9be7ff" stop-opacity="0.7"/><stop offset="1" stop-color="#1f6feb" stop-opacity="0"/></radialGradient>',
-    '<linearGradient id="trail" x1="0" x2="1"><stop offset="0" stop-color="#3ab7ff" stop-opacity="0"/>'
-    '<stop offset="1" stop-color="#b8f1ff" stop-opacity="0.9"/></linearGradient>',
+    '<stop offset="0.35" stop-color="#ffd166" stop-opacity="0.8"/><stop offset="0.7" stop-color="#ff5a1f" stop-opacity="0.4"/><stop offset="1" stop-color="#c81e1e" stop-opacity="0"/></radialGradient>',
+    '<linearGradient id="trail" x1="0" x2="1"><stop offset="0" stop-color="#c81e1e" stop-opacity="0"/>'
+    '<stop offset="0.6" stop-color="#ff5a1f" stop-opacity="0.7"/><stop offset="1" stop-color="#ffd166" stop-opacity="0.95"/></linearGradient>',
     '<linearGradient id="name" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff"/>'
-    '<stop offset="1" stop-color="#7fd4ff"/></linearGradient>',
+    '<stop offset="1" stop-color="#ffb347"/></linearGradient>',
     '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/>'
     '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
     "</defs>",
@@ -55,7 +55,7 @@ for i in range(14):
     sx, sy = START_X + math.cos(a) * d, CY + math.sin(a) * d
     t0 = rng.uniform(0.05, 0.6)
     p.append(
-        f'<circle r="2" fill="#b8f1ff" opacity="0">'
+        f'<circle r="2" fill="#ffb020" opacity="0">'
         + anim("cx", [0, t0, T_FIRE, DUR], [sx, sx, START_X, START_X])
         + anim("cy", [0, t0, T_FIRE, DUR], [sy, sy, CY, CY])
         + anim("opacity", [0, t0, T_FIRE - 0.05, T_FIRE, DUR], [0, 1, 1, 0, 0])
@@ -78,6 +78,7 @@ p.append(
     + anim("cy", [0, DUR], [CY, CY])
     + anim("r", [0, 0.9, 1.05, 1.15, T_FIRE, T_HIT, T_HIT + 0.05, DUR],
            [0, 26, 22, 28, 26, 22, 0, 0])
+    + '<animate attributeName="opacity" values="1;0.85;1;0.9;1" dur="0.3s" repeatCount="indefinite"/>'
     + "</circle>"
 )
 
@@ -90,7 +91,7 @@ p.append(
 )
 for i, (rmax, delay) in enumerate([(300, 0), (220, 0.12)]):
     p.append(
-        f'<ellipse cx="{CX}" cy="{CY}" rx="0" ry="0" fill="none" stroke="#9be7ff" stroke-width="{3-i}">'
+        f'<ellipse cx="{CX}" cy="{CY}" rx="0" ry="0" fill="none" stroke="#ff8a3d" stroke-width="{3-i}">'
         + anim("rx", [0, T_HIT + delay, T_HIT + delay + 0.6, DUR], [0, 0, rmax, rmax])
         + anim("ry", [0, T_HIT + delay, T_HIT + delay + 0.6, DUR], [0, 0, rmax * 0.35, rmax * 0.35])
         + anim("opacity", [0, T_HIT + delay, T_HIT + delay + 0.6, DUR], [0, 1, 0, 0])
@@ -103,7 +104,7 @@ for i in range(22):
     d = rng.uniform(120, 260)
     ex, ey = CX + math.cos(a) * d, CY + math.sin(a) * d * 0.55
     p.append(
-        f'<circle r="{rng.uniform(1.5,3):.1f}" fill="#e6f7ff" opacity="0">'
+        f'<circle r="{rng.uniform(1.5,3):.1f}" fill="#ffd166" opacity="0">'
         + anim("cx", [0, T_HIT, T_HIT + 0.7, DUR], [CX, CX, round(ex), round(ex)])
         + anim("cy", [0, T_HIT, T_HIT + 0.7, DUR], [CY, CY, round(ey), round(ey)])
         + anim("opacity", [0, T_HIT, T_HIT + 0.05, T_HIT + 0.7, DUR], [0, 0, 1, 0, 0])
