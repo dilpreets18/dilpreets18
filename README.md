@@ -10,18 +10,14 @@
 
 ---
 
-### 🧠 About Me
+### 👋 About Me
 
-```js
-const dilpreet = {
-  location:   "Indore, India 🇮🇳",
-  role:       "Solutions Engineer",
-  focus:      ["Solution architecture", "Integrations & APIs", "AI-powered products"],
-  learning:   ["System Design", "Cloud"],
-  askMeAbout: ["APIs", "Cloud", "Turning requirements into demos"],
-  funFact:    "My best code is written after chai #3 ☕",
-};
-```
+I'm a **Solutions Engineer** based in Indore, India 🇮🇳. I work where tech meets the customer: figuring out what a business actually needs, then designing and building the solution that gets it there.
+
+- 🧩 **What I do:** solution design, API integrations, technical demos and proofs of concept
+- ☁️ **Exploring:** cloud architecture and AI-powered workflows
+- 💬 **Ask me about:** APIs, integrations, and turning messy requirements into something that works
+- ☕ **Fun fact:** my best ideas show up after chai #3
 
 ---
 
