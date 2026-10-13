@@ -47,7 +47,7 @@ for _ in range(45):
     x, y, r = rng.uniform(10, W - 10), rng.uniform(10, H - 10), rng.uniform(0.5, 1.4)
     p.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r:.1f}" fill="#8b949e" opacity="{rng.uniform(.15,.5):.2f}"/>')
 
-START_X = 90
+START_X = 100
 # charging particles converging on the orb
 for i in range(14):
     a = rng.uniform(0, 2 * math.pi)
@@ -61,6 +61,53 @@ for i in range(14):
         + anim("opacity", [0, t0, T_FIRE - 0.05, T_FIRE, DUR], [0, 1, 1, 0, 0])
         + "</circle>"
     )
+
+# original hooded fighter (faces right) who charges and launches the fireball
+GROUND = 206
+RIM = "#ff8a3d"
+CLOAK = "#262c36"
+p.append(
+    # warm glow on the ground while charging
+    f'<ellipse cx="70" cy="{GROUND}" rx="60" ry="8" fill="#ff8a3d" opacity="0">'
+    + anim("opacity", [0, 0.3, T_FIRE, T_FIRE + 0.4, DUR], [0, 0.35, 0.5, 0, 0])
+    + "</ellipse>"
+)
+fighter = [
+    "<g>",
+    # crouch while charging, recoil back on launch, settle
+    '<animateTransform attributeName="transform" type="translate" '
+    f'dur="{DUR}s" repeatCount="indefinite" '
+    f'keyTimes="{k(0)};{k(0.6)};{k(T_FIRE)};{k(T_FIRE+0.08)};{k(T_FIRE+0.5)};1" '
+    'values="0,0;0,3;0,3;-9,1;0,0;0,0"/>',
+    # scarf tail, fluttering behind
+    f'<path fill="{RIM}" opacity="0.9" d="M44 92 C30 90 20 98 6 94 L10 100 C24 104 34 98 46 99 Z">'
+    '<animate attributeName="d" dur="0.6s" repeatCount="indefinite" values="'
+    "M44 92 C30 90 20 98 6 94 L10 100 C24 104 34 98 46 99 Z;"
+    "M44 92 C30 96 18 88 4 92 L8 99 C22 96 34 102 46 99 Z;"
+    'M44 92 C30 90 20 98 6 94 L10 100 C24 104 34 98 46 99 Z"/></path>',
+    # legs in a wide stance
+    f'<path d="M48 168 L34 {GROUND}" stroke="{CLOAK}" stroke-width="9" stroke-linecap="round"/>',
+    f'<path d="M58 168 L78 {GROUND}" stroke="{CLOAK}" stroke-width="9" stroke-linecap="round"/>',
+    f'<path d="M48 168 L34 {GROUND}" stroke="{RIM}" stroke-width="1.2" stroke-linecap="round" opacity="0.6" transform="translate(3 0)"/>',
+    f'<path d="M58 168 L78 {GROUND}" stroke="{RIM}" stroke-width="1.2" stroke-linecap="round" opacity="0.6" transform="translate(3 0)"/>',
+    # cloak body with a flowing back hem
+    f'<path d="M42 90 L62 90 L70 172 L56 176 L30 178 C34 160 36 120 42 90 Z" fill="{CLOAK}" stroke="{RIM}" stroke-width="1.5" stroke-linejoin="round"/>',
+    # belt sash
+    f'<path d="M37 136 L67 134 L67 140 L37 142 Z" fill="{RIM}" opacity="0.85"/>',
+    # back arm braced
+    f'<path d="M46 100 L40 124 L48 132" fill="none" stroke="{CLOAK}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>',
+    # hood
+    f'<path d="M38 88 C36 70 46 62 56 64 C66 66 70 76 66 88 C60 92 46 93 38 88 Z" fill="{CLOAK}" stroke="{RIM}" stroke-width="1.5"/>',
+    # face shadow and glowing eye
+    '<path d="M54 74 C62 74 65 80 63 86 L52 86 Z" fill="#0b0e13"/>',
+    f'<rect x="56" y="78" width="6" height="2.4" rx="1.2" fill="#ffd166" filter="url(#glow)"/>',
+    # throwing arm extended forward with open palm
+    f'<path d="M58 96 L74 104 L86 110" fill="none" stroke="{CLOAK}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>',
+    f'<path d="M58 96 L74 104 L86 110" fill="none" stroke="{RIM}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" transform="translate(0 -3)"/>',
+    f'<circle cx="88" cy="111" r="5" fill="{CLOAK}" stroke="{RIM}" stroke-width="1.2"/>',
+    "</g>",
+]
+p.append("".join(fighter))
 
 # trail behind the flying orb
 p.append(
