@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/banner.webp" alt="A hooded fighter charges a fireball and launches it; it explodes and the name Dilpreet Singh Dua rises in burning 3D letters" width="100%" />
+<img src="./assets/banner.webp" alt="Anime-style animation: a hooded fighter charges a fireball and blasts it across a night plain; it explodes and the name Dilpreet slams in, wrapped in flames, above Solutions Engineer" width="100%" />
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=I+turn+problems+into+working+solutions;APIs+%C2%B7+Integrations+%C2%B7+Cloud+%C2%B7+AI;Currently+learning+something+new+%F0%9F%9A%80" alt="Typing intro" />
 
